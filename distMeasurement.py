@@ -1,14 +1,35 @@
 import struct
 import socket
 
-#unused port 33434
+TR_PORT = 33434 # Port 33434 is a traceroute port
+MAX_TTL = 255 # Max time to live is 255, I think
+TTL = 64 # standard time to live value
+
+# raw datagram message creation
+msg = "measurement for class project; please direct inquiries to student Zubair Mukhi (zxm132@case.edu) or Professor Michael Rabinovich (mxr136@case.edu)"
+payload = bytes(msg + "a"*(1472-len(msg)), "ascii")
+udp = socket.getprotobyname('udp')
+icmp = socket.getprotobyname('icmp')
+senderSocket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM, udp)
+senderSocket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL)
+recv_sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
+f = open("targets.txt", "r")
+datalist = []
+line = f.readine()
+while line:
+    host = socket.gethostbyname(line)
+    senderSocket.sendto(payload, (host, TR_PORT))
+    recv_sock.recv(1500)
+    #receive
+    #result = recv_sock.recv(1500)
+    datalist.append(result)
+    line = f.readline()
+# send_sock.sendto(payload, (dest_ip, dest_port))
+
+
 # fundamental assumption: given that a request to a port throws back an error, by setting a time-to-live for the packet larger than the expected number of hops, we can derive the number of hops as (initial TTL - TTL at target)
 
-#use raw sockets in order to send and receive completely custom packets
-
-msg = "measurement for class project; please direct inquiries to student Zubair Mukhi (zxm132@case.edu) or Professor Michael Rabinovich (mxr136@case.edu)"
-payload = bytes(msg + "a"*(1472-len(msg), "ascii"))
-# send_sock.sendto(payload, (dest_ip, dest_port))
+# use raw sockets in order to send and receive completely custom packets
 
 # Thus, the output of your tool must
 # include, for each destination
