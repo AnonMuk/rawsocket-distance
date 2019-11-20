@@ -13,18 +13,27 @@ icmp = socket.getprotobyname('icmp')
 senderSocket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM, udp)
 senderSocket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL)
 recv_sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
+#using timeout instead of polling. Trying twice at 30 seconds.
+recv_sock.settimeout(30)
 f = open("targets.txt", "r")
 datalist = []
 line = f.readine()
 while line:
     host = socket.gethostbyname(line)
     senderSocket.sendto(payload, (host, TR_PORT))
-    recv_sock.recv(1500)
-    #receive
-    #result = recv_sock.recv(1500)
+    try:
+        result = recv_sock.recv(1500)
+    except timeout:
+        #whoops no response
+        try:
+            #resend packet
+            senderSocket.sendto(payload, (host, TR_PORT))
+            result = recv_sock.recv(1500)
+        except timeout:
+            #whoops still no response
+            result = "error on " + line
     datalist.append(result)
     line = f.readline()
-# send_sock.sendto(payload, (dest_ip, dest_port))
 
 
 # fundamental assumption: given that a request to a port throws back an error, by setting a time-to-live for the packet larger than the expected number of hops, we can derive the number of hops as (initial TTL - TTL at target)
