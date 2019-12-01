@@ -1,39 +1,55 @@
 import struct
 import socket
+import time
 
-TR_PORT = 33434 # Port 33434 is a traceroute port
-MAX_TTL = 255 # Max time to live is 255, I think
-TTL = 64 # standard time to live value
+TR_PORT = 33434  # Port 33434 is a traceroute port
+TTL = 64  # standard time to live value
 
 # raw datagram message creation
 msg = "measurement for class project; please direct inquiries to student Zubair Mukhi (zxm132@case.edu) or Professor Michael Rabinovich (mxr136@case.edu)"
-payload = bytes(msg + "a"*(1472-len(msg)), "ascii")
+payload = bytes(msg + "a" * (1472 - len(msg)), "ascii")
 udp = socket.getprotobyname('udp')
 icmp = socket.getprotobyname('icmp')
-senderSocket = socket.socket(socket.AF_INET,socket.SOCK_DGRAM, udp)
+senderSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, udp)
 senderSocket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL)
 recv_sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
-#using timeout instead of polling. Trying twice at 30 seconds.
+# using timeout instead of polling. Trying twice at 30 seconds.
 recv_sock.settimeout(30)
 f = open("targets.txt", "r")
 datalist = []
 line = f.readine()
+me = socket.gethostbyname(socket.gethostname())
 while line:
     host = socket.gethostbyname(line)
+    startTime = time.now()
     senderSocket.sendto(payload, (host, TR_PORT))
     try:
         result = recv_sock.recv(1500)
+        endTime = time.now()
+        data = getData(result, startTime, endTime)
     except timeout:
-        #whoops no response
+        # whoops no response
         try:
-            #resend packet
+            # resend packet
+            startTime = time.now()
             senderSocket.sendto(payload, (host, TR_PORT))
             result = recv_sock.recv(1500)
+            endTime = time.now()
         except timeout:
-            #whoops still no response
+            endTime = time.now()
+            startTime = time.now()
+            # whoops still no response
             result = "error on " + line
     datalist.append(result)
     line = f.readline()
+
+
+def getData(result, startTime, endTime):
+    totalTime = endTime - startTime
+    target_ip = (result[12], result[13], result[14], result[15])
+    src_ip = (result[15], result[16], result[17], result[18])
+    hops = TTL - result[8]
+    return (hops, totalTime, target_ip, src_ip)
 
 
 # fundamental assumption: given that a request to a port throws back an error, by setting a time-to-live for the packet larger than the expected number of hops, we can derive the number of hops as (initial TTL - TTL at target)
@@ -59,8 +75,10 @@ while line:
 # port_from_packet = struct.unpack("!H", packet[x:x+2])[0]
 # Here, the first argument “!H” speficies format of the packet fragment being extracted, in this case signifying that the two bytes from packet appear in the network order (“!”) and they represent an unsigned short (“H”).
 #   b. However, when you need to extract only a single byte, you can just convert it to integer using ord(byte) function.
-# You will need to think how you will match ICMP responses with the probes you are sending out. Note that your socket may receive unrelated packets since there is no port number to distinguish “your” packets from someone else’s (i.e., another process running on your host). In principle, there are several possibilities: one technique would compare the IP address of your measurement target to the source IP address of the ICMP response and match probes with ICMP responses when these IP addresses match. This technique is going to work most of the time but not all the time: sometime you may receive the ICMP response from an IP address that is different from the address you are probing. (We have actually seen this behavior. I speculate it’s due to the use of a load balancer at the destination. In this setup, when you resolve the destination’s hostname, you get the IP address of the load balancer, which receives your packets and forwards them to one of the servers in a server cluster. However, the ICMP messages that the selected server generates, carry the server’s own IP address, which is different from that of the load balance which your probe used.) Another technique matches the datagram ID (the “IPID” field from the IP header) with the datagram ID you find in the ICMP payload (which, as a reminder, contains full IP header plus 8 bytes of the transport-level header of the original datagram in those first 28 bytes of payload). Again, this will work most of the time but does not guarantee to work all the time because a NAT box, a firewall, or another middlebox between you and the destination may change the IPID of the datagram as it forwards it along. Yet another technique involves matching the destination port number from your probe datagram with the corresponding information from the 28-byte ICMP payload. This is unlikely to be changed by any middlebox. Thus, I would like you to implement all three techniques above and declare a match when any of the three techniques produce a match. For each destination, please report how many of the three techniques above produced a match.
-# You need to allow for a possibility that you will get no answer – because the target host does not send ICMP error messages, or because the destination’s firewall blocks outgoing ICMP messages, or because the destination’s firewall blocks unexpected UDP messages. Hence your program should not be stuck on reading from a socket forever. You will need to use either a “select” or “poll” call on the socket (read about them – google for “socket select”) before reading from the socket. WARNING: do not process this error by changing the destination port number – stick with 33434 or you may get a nasty call from network admins! This will be interpreted as port scanning. I suggest you just try couple times and if you still get no answer, give up on this destination and produce some error message and move on to measuring the next site. You can check manually if it is your program’s fault by trying to reach this destination using a standard ping measurement (there is a small chance that ping would be treated differently and experience a different outcome, but if you see that your tool produces no answer while ping succeeds on many destinations, this should increase your doubt in the correctness of your tool).
+# You will need to think how you will match ICMP responses with the probes you are sending out. Note that your socket may receive unrelated packets since there is no port number to distinguish “your” packets from someone else’s (i.e., another process running on your host). In principle, there are several possibilities:
+# Compare the IP of measurement target to the source IP of the ICMP response and consider this a match if and only if the target icmp response has a matching ip id. Declare match.
+# Compare the port dest from the probe datagram with information from the ICMP payload. Declare match.
+
 # (8) While in theory you can address your probe to any unreachable port, how would you know which port on the target host is unused by other applications? There is a specially allocated port number for this type of probing by traceroute, and please use that port number, which is 33434. Your script should read the file “targets.txt” (collocated in the same directory as your script), which includes the set of websites you are exploring and accept no arguments, and obtain the IP address of each target using socket.gethostbyname method. The script should print out the result on standard output (in addition to any file that you find convenient to produce the plot below) that is understandable to the grader. Please name the script “distMeasurement.py”. Once you have your tool, measure the hop count as well as RTT to each of the websites you worked with in earlier homework assignments (or read instructions for the eecs425 portion of HW 2 if you are a 325 student). From the output of your tool, produce a scatter graph to visualize the correlation (use any tool you want for this, e.g., Excel): have hops on X-axis, RTT on Y-axis, and for each remote host, place a dot with corresponding coordinates on the graph. This is a typical technique to visualize correlation. Note, as mentioned, you may not get responses from some of the servers. In order to produce a meaningful scatterplot, pick some other sites that were not included in your original list of ten. Keep probing until you have around ten. You can say in your report that you are substituting these sites because your original sites did not respond.
 # Deliverables:
 #   1. Submit to canvas: A single zip file with (a) all programs (make sure they are well commented and include instructions how to run them – arguments etc. Under-documented programs will be penalized.); (b) Project report that includes all measurement results, graphs, correlation coefficients, and conclusions that you draw from your measurements.
