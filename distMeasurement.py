@@ -1,11 +1,13 @@
 import struct
 import socket
-import time
+from datetime import datetime
+import auxiliary as ext
 
 TR_PORT = 33434  # Port 33434 is a traceroute port
 TTL = 64  # standard time to live value
 
 # raw datagram message creation
+path = "./results.csv"
 msg = "measurement for class project; please direct inquiries to student Zubair Mukhi (zxm132@case.edu) or Professor Michael Rabinovich (mxr136@case.edu)"
 payload = bytes(msg + "a" * (1472 - len(msg)), "ascii")
 udp = socket.getprotobyname('udp')
@@ -21,54 +23,40 @@ line = f.readine()
 me = socket.gethostbyname(socket.gethostname())
 while line:
     host = socket.gethostbyname(line)
-    startTime = time.now()
+    startTime = datetime.datetime.now()
     senderSocket.sendto(payload, (host, TR_PORT))
     try:
         result = recv_sock.recv(1500)
-        endTime = time.now()
-        data = getData(result, startTime, endTime)
-    except timeout:
+        endTime = datetime.datetime.now()
+        data = ext.getInfo(result, startTime, endTime)
+    except socket.timeout:
         # whoops no response
         try:
             # resend packet
-            startTime = time.now()
+            startTime = datetime.datetime.now()
             senderSocket.sendto(payload, (host, TR_PORT))
             result = recv_sock.recv(1500)
-            endTime = time.now()
-        except timeout:
-            endTime = time.now()
-            startTime = time.now()
+            endTime = datetime.datetime.now()
+        except socket.timeout:
+            endTime = datetime.datetime.now()
+            startTime = datetime.datetime.now()
             # whoops still no response
-            result = "error on " + line
-    datalist.append(result)
+            result = (-1, -1, false, false)
+    datalist.append(result + ", " + line)
+    print(result)
+    ext.writeTo(path, result)
     line = f.readline()
 
-
-def getData(result, startTime, endTime):
-    totalTime = endTime - startTime
-    target_ip = (result[12], result[13], result[14], result[15])
-    src_ip = (result[15], result[16], result[17], result[18])
-    hops = TTL - result[8]
-    return (hops, totalTime, target_ip, src_ip)
-
-
 # fundamental assumption: given that a request to a port throws back an error, by setting a time-to-live for the packet larger than the expected number of hops, we can derive the number of hops as (initial TTL - TTL at target)
-
-# use raw sockets in order to send and receive completely custom packets
 
 # Thus, the output of your tool must
 # include, for each destination
 #   (a) the number of router hops between you and the destination,
 #   (b) the RTT between you and the destination
 #   (c) the number of probe/response matching criteria that matched for this destination (see explanation below)
-#   (d) the number of bytes of the original datagram included in the ICMP error message
+#   (d) (if time) the number of bytes of the original datagram included in the ICMP error message
 
 # You will need to create a datagram with custom values of some header fields for your probe. The easiest way to do it is to create a socket of type socket.SOCK_DGRAM and then use setsockopt() to change just the fields of your socket that you need to change. Then you can send it with socket.sendto() without going through the trouble of building the rest of the headers yourself.
-
-# You will also need to create a raw socket to receive ICMP messages. To create a raw socket for receiving an ICMP datagram, you can use the following function:
-# recv_sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_ICMP)
-# after which you can get a packet from this socket by using the following:
-# icmp_packet = recv_sock.recv(max_length_of_expected_packet)
 
 # A few other useful functions:
 #   a. To extract a field from a packet, you can use “struct” module, in particular struct.unpack function. Keep in mind that whenever you extract a multi-byte integer (e.g., port number) you need to make make sure the order in which the bytes appear in the packet (the most significant byte first) matches the order in which these integers are represented in the computer you happen to use. A portable way to handle this is to use so-called “network order” when extracting the bytes from the packet. E.g., if packet[x:x+1] represents the two-bytes port number in a packet, your can convert it to int by the following:
