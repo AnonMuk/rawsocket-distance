@@ -28,7 +28,7 @@ while line:
     try:
         result = recv_sock.recv(1500)
         endTime = datetime.datetime.now()
-        data = ext.getInfo(result, startTime, endTime)
+        data = ext.getInfo(host, result, startTime, endTime)
     except socket.timeout:
         # whoops no response
         try:
@@ -37,13 +37,14 @@ while line:
             senderSocket.sendto(payload, (host, TR_PORT))
             result = recv_sock.recv(1500)
             endTime = datetime.datetime.now()
+            data = ext.getInfo(host, result, startTime, endTime)
         except socket.timeout:
             endTime = datetime.datetime.now()
             startTime = datetime.datetime.now()
             # whoops still no response
-            result = (-1, -1, false, false)
+            result = (-1, -1, 0, False, False)
     datalist.append(result + ", " + line)
-    print(result)
+    print(line + ": " + result)
     ext.writeTo(path, result)
     line = f.readline()
 
@@ -67,7 +68,7 @@ while line:
 # Compare the IP of measurement target to the source IP of the ICMP response and consider this a match if and only if the target icmp response has a matching ip id. Declare match.
 # Compare the port dest from the probe datagram with information from the ICMP payload. Declare match.
 
-# (8) While in theory you can address your probe to any unreachable port, how would you know which port on the target host is unused by other applications? There is a specially allocated port number for this type of probing by traceroute, and please use that port number, which is 33434. Your script should read the file “targets.txt” (collocated in the same directory as your script), which includes the set of websites you are exploring and accept no arguments, and obtain the IP address of each target using socket.gethostbyname method. The script should print out the result on standard output (in addition to any file that you find convenient to produce the plot below) that is understandable to the grader. Please name the script “distMeasurement.py”. Once you have your tool, measure the hop count as well as RTT to each of the websites you worked with in earlier homework assignments (or read instructions for the eecs425 portion of HW 2 if you are a 325 student). From the output of your tool, produce a scatter graph to visualize the correlation (use any tool you want for this, e.g., Excel): have hops on X-axis, RTT on Y-axis, and for each remote host, place a dot with corresponding coordinates on the graph. This is a typical technique to visualize correlation. Note, as mentioned, you may not get responses from some of the servers. In order to produce a meaningful scatterplot, pick some other sites that were not included in your original list of ten. Keep probing until you have around ten. You can say in your report that you are substituting these sites because your original sites did not respond.
+# From the output of your tool, produce a scatter graph to visualize the correlation (use any tool you want for this, e.g., Excel): have hops on X-axis, RTT on Y-axis, and for each remote host, place a dot with corresponding coordinates on the graph. This is a typical technique to visualize correlation. Note, as mentioned, you may not get responses from some of the servers. In order to produce a meaningful scatterplot, pick some other sites that were not included in your original list of ten. Keep probing until you have around ten. You can say in your report that you are substituting these sites because your original sites did not respond.
 # Deliverables:
 #   1. Submit to canvas: A single zip file with (a) all programs (make sure they are well commented and include instructions how to run them – arguments etc. Under-documented programs will be penalized.); (b) Project report that includes all measurement results, graphs, correlation coefficients, and conclusions that you draw from your measurements.
 #   2. Place your project into directory “<home-directory>/project2” in your VM. (You can use sftp to upload.) Then create a copy of that directory, “<home-directory>/project2grading”. We will be testing your work by going into the project2grading directory and issuing the commands “python3 distMeasurement.py”.
