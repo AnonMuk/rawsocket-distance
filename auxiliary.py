@@ -17,7 +17,7 @@ def getInfo(host, port, result, startTime, endTime):
         matchNum += 1
     if (b):
         matchNum += 1
-    return (hops, totalTime, matchNum, a, b)
+    return (str(hops), str(totalTime), str(matchNum), str(a), str(b))
 
 
 def Case1(result, host):

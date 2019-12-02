@@ -45,7 +45,7 @@ while line:
             endTime = datetime.now()
             startTime = datetime.now()
             # whoops still no response
-            data = (-1, -1, 0, False, False)
+            data = ('-1', '-1', '0', 'False', 'False')
     value = (line,) + data
     datalist.append(value)
     print(value)
