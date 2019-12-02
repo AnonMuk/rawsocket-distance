@@ -22,6 +22,7 @@ line = f.readline()
 # get my IP Address
 me = socket.gethostbyname(socket.gethostname())
 while line:
+    print(line)
     host = socket.gethostbyname(line)
     startTime = datetime.datetime.now()
     senderSocket.sendto(payload, (host, TR_PORT))
