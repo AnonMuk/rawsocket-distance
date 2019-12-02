@@ -26,21 +26,19 @@ while line:
     host = socket.gethostbyname(line)
     startTime = datetime.now()
     senderSocket.sendto(payload, (host, TR_PORT))
-    port = senderSocket.getsockname()[1]
     try:
         result = recv_sock.recv(1500)
         endTime = datetime.now()
-        data = ext.getInfo(host, port, result, startTime, endTime)
+        data = ext.getInfo(host, result, startTime, endTime)
     except socket.timeout:
         # whoops no response
         try:
             # resend packet
             startTime = datetime.now()
             senderSocket.sendto(payload, (host, TR_PORT))
-            port = senderSocket.getsockname()[1]
             result = recv_sock.recv(1500)
             endTime = datetime.now()
-            data = ext.getInfo(host, port, result, startTime, endTime)
+            data = ext.getInfo(host, result, startTime, endTime)
         except socket.timeout:
             endTime = datetime.now()
             startTime = datetime.now()
