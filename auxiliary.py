@@ -32,7 +32,7 @@ def Case2(result, port):
 
 def writeTo(path, msg):
     f = open(path, "a+")
-    f.write(convertTuple(msg))
+    f.write(convertTuple(msg) + "\n")
     f.close()
 
 
