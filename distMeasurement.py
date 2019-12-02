@@ -18,7 +18,7 @@ recv_sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 recv_sock.settimeout(5)
 f = open("targets.txt", "r")
 datalist = []
-line = f.readline()
+line = f.readline().rstrip()
 # get my IP Address
 me = socket.gethostbyname(socket.gethostname())
 while line:
@@ -49,7 +49,7 @@ while line:
     datalist.append(result + ", " + line)
     print(line + ": " + result)
     ext.writeTo(path, result)
-    line = f.readline()
+    line = f.readline().rstrip()
 
 # fundamental assumption: given that a request to a port throws back an error, by setting a time-to-live for the packet larger than the expected number of hops, we can derive the number of hops as (initial TTL - TTL at target)
 
