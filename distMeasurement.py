@@ -18,7 +18,7 @@ recv_sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 recv_sock.settimeout(5)
 f = open("targets.txt", "r")
 datalist = []
-line = f.readine()
+line = f.readline()
 # get my IP Address
 me = socket.gethostbyname(socket.gethostname())
 while line:
