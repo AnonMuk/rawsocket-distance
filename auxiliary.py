@@ -6,9 +6,10 @@ TTL = 64  # standard time to live value
 
 
 def getInfo(host, result, startTime, endTime):
+    # create a constant to track the number of matching criteria as below
     matchNum = 0
-    totalTime = (endTime - startTime).total_seconds() * 1000  # to msec
-    hops = TTL - result[8]
+    totalTime = (endTime - startTime).total_seconds() * 1000  # time delta in seconds to msec
+    hops = TTL - result[36]  # extract TTL field from ICMP packet (not from response header whoops)
     if (hops < 0):
         hops = -1
     a = Case1(result, host)
