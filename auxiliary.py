@@ -1,3 +1,6 @@
+import struct
+
+
 TR_PORT = 33434  # Port 33434 is a traceroute port
 TTL = 64  # standard time to live value
 
@@ -24,9 +27,7 @@ def Case1(result, host):
 
 
 def Case2(result):
-    stub = True
-    # Stub logic here
-    return stub
+    return (struct.unpack("!H", result[23:25])[0] == TR_PORT)
 
 
 def writeTo(path, msg):

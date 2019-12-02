@@ -1,4 +1,3 @@
-import struct
 import socket
 from datetime import datetime
 import auxiliary as ext
@@ -20,6 +19,7 @@ recv_sock.settimeout(30)
 f = open("targets.txt", "r")
 datalist = []
 line = f.readine()
+# get my IP Address
 me = socket.gethostbyname(socket.gethostname())
 while line:
     host = socket.gethostbyname(line)
@@ -65,7 +65,6 @@ while line:
 # Here, the first argument “!H” speficies format of the packet fragment being extracted, in this case signifying that the two bytes from packet appear in the network order (“!”) and they represent an unsigned short (“H”).
 #   b. However, when you need to extract only a single byte, you can just convert it to integer using ord(byte) function.
 # You will need to think how you will match ICMP responses with the probes you are sending out. Note that your socket may receive unrelated packets since there is no port number to distinguish “your” packets from someone else’s (i.e., another process running on your host). In principle, there are several possibilities:
-# Compare the IP of measurement target to the source IP of the ICMP response and consider this a match if and only if the target icmp response has a matching ip id. Declare match.
 # Compare the port dest from the probe datagram with information from the ICMP payload. Declare match.
 
 # From the output of your tool, produce a scatter graph to visualize the correlation (use any tool you want for this, e.g., Excel): have hops on X-axis, RTT on Y-axis, and for each remote host, place a dot with corresponding coordinates on the graph. This is a typical technique to visualize correlation. Note, as mentioned, you may not get responses from some of the servers. In order to produce a meaningful scatterplot, pick some other sites that were not included in your original list of ten. Keep probing until you have around ten. You can say in your report that you are substituting these sites because your original sites did not respond.
