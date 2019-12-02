@@ -25,6 +25,7 @@ while line:
     host = socket.gethostbyname(line)
     startTime = datetime.datetime.now()
     senderSocket.sendto(payload, (host, TR_PORT))
+    port = senderSocket.getsockname()[1]
     try:
         result = recv_sock.recv(1500)
         endTime = datetime.datetime.now()
@@ -35,9 +36,10 @@ while line:
             # resend packet
             startTime = datetime.datetime.now()
             senderSocket.sendto(payload, (host, TR_PORT))
+            port = senderSocket.getsockname()[1]
             result = recv_sock.recv(1500)
             endTime = datetime.datetime.now()
-            data = ext.getInfo(host, result, startTime, endTime)
+            data = ext.getInfo(host, port, result, startTime, endTime)
         except socket.timeout:
             endTime = datetime.datetime.now()
             startTime = datetime.datetime.now()

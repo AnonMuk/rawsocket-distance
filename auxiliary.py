@@ -5,14 +5,14 @@ TR_PORT = 33434  # Port 33434 is a traceroute port
 TTL = 64  # standard time to live value
 
 
-def getInfo(host, result, startTime, endTime):
+def getInfo(host, port, result, startTime, endTime):
     matchNum = 0
     totalTime = (endTime - startTime).total_seconds()
     hops = TTL - result[8]
     if (hops < 0):
         hops = -1
     a = Case1(result, host)
-    b = Case2(result)
+    b = Case2(result, port)
     if(a):
         matchNum += 1
     if (b):
@@ -26,8 +26,8 @@ def Case1(result, host):
     return (target_ip == host)
 
 
-def Case2(result):
-    return (struct.unpack("!H", result[23:25])[0] == TR_PORT)
+def Case2(result, port):
+    return (struct.unpack("!H", result[23:25])[0] == port)
 
 
 def writeTo(path, msg):
