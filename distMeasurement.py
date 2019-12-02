@@ -8,7 +8,7 @@ TTL = 64  # standard time to live value
 # raw datagram message creation
 path = "./results.csv"  # establish constant for results
 f = open(path, "w+")
-f.write("site,hops,time (msec),matching criteria,IP Matching,Port Matching")
+f.write("site,hops,time (msec),matching criteria,IP Matching,Port Matching\n")
 f.close()
 msg = "measurement for class project; please direct inquiries to student Zubair Mukhi (zxm132@case.edu) or Professor Michael Rabinovich (mxr136@case.edu)"
 payload = bytes(msg + "a" * (1472 - len(msg)), "ascii")  # encode payload for dgram
