@@ -1,12 +1,1 @@
-site,hops,time,matching criteria,IP Matching,Port Matching
-youtube.com,16,0.941,2,True,True
-onlinevideoconverter.com,16,86.342,2,True,True
-1337x.to,9,0.605,2,True,True
-znds.com,26,251.22899999999998,2,True,True
-wildberries.ru,27,120.264,2,True,True
-crunchyroll.com,9,0.593,2,True,True
-indiamart.com,10,0.5559999999999999,2,True,True
-rambler.ru,-1,-1,0,False,False
-google.com.ua,16,0.921,2,True,True
-padlet.com,9,0.618,2,True,True
-lenta.ru,19,123.261,2,True,True
+lenta.ru,17,127.09899999999999,2,True,True
