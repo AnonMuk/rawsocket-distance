@@ -32,5 +32,10 @@ def Case2(result, port):
 
 def writeTo(path, msg):
     f = open(path, "a+")
-    f.write(msg)
+    f.write(convertTuple(msg))
     f.close()
+
+
+def convertTuple(tuple):
+    commaString = ",".join(tuple)
+    return commaString
