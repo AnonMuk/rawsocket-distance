@@ -15,7 +15,7 @@ senderSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, udp)
 senderSocket.setsockopt(socket.SOL_IP, socket.IP_TTL, TTL)
 recv_sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, icmp)
 # using timeout instead of polling. Trying twice at 30 seconds.
-recv_sock.settimeout(30)
+recv_sock.settimeout(5)
 f = open("targets.txt", "r")
 datalist = []
 line = f.readine()
