@@ -30,7 +30,7 @@ while line:
     try:
         result = recv_sock.recv(1500)
         endTime = datetime.now()
-        data = ext.getInfo(host, result, startTime, endTime)
+        data = ext.getInfo(host, port, result, startTime, endTime)
     except socket.timeout:
         # whoops no response
         try:
@@ -45,9 +45,10 @@ while line:
             endTime = datetime.now()
             startTime = datetime.now()
             # whoops still no response
-            result = (-1, -1, 0, False, False)
-    datalist.append(result + ", " + line)
-    print(line + ": " + result)
+            data = (-1, -1, 0, False, False)
+    value = (data, line)
+    datalist.append(value)
+    print(value)
     ext.writeTo(path, result)
     line = f.readline().rstrip()
 
