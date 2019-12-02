@@ -46,7 +46,7 @@ while line:
             startTime = datetime.now()
             # whoops still no response
             data = (-1, -1, 0, False, False)
-    value = line + data
+    value = (line,) + data
     datalist.append(value)
     print(value)
     ext.writeTo(path, value)
