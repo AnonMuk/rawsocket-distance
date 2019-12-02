@@ -46,10 +46,10 @@ while line:
             startTime = datetime.now()
             # whoops still no response
             data = (-1, -1, 0, False, False)
-    value = (data, line)
+    value = line + data
     datalist.append(value)
     print(value)
-    ext.writeTo(path, result)
+    ext.writeTo(path, value)
     line = f.readline().rstrip()
 
 # fundamental assumption: given that a request to a port throws back an error, by setting a time-to-live for the packet larger than the expected number of hops, we can derive the number of hops as (initial TTL - TTL at target)
