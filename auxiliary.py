@@ -32,7 +32,7 @@ def Case2(result):
 
 
 def writeTo(path, msg):
-    f = open(path, "w+")
+    f = open(path, "a+")
     f.write(convertTuple(msg) + "\n")
     f.close()
 
