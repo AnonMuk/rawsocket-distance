@@ -7,7 +7,7 @@ TTL = 64  # standard time to live value
 
 def getInfo(host, result, startTime, endTime):
     matchNum = 0
-    totalTime = (endTime - startTime).total_seconds()
+    totalTime = (endTime - startTime).total_seconds() * 1000  # to msec
     hops = TTL - result[8]
     if (hops < 0):
         hops = -1
