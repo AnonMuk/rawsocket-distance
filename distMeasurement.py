@@ -55,15 +55,3 @@ while line:
     print(value)
     ext.writeTo(path, value)
     line = f.readline().rstrip()
-
-# Thus, the output of your tool must
-# include, for each destination
-#   (a) the number of router hops between you and the destination,
-#   (b) the RTT between you and the destination
-#   (c) the number of probe/response matching criteria that matched for this destination (see explanation below)
-
-# Deliverables:
-#   1. Submit to canvas: A single zip file with
-# (a) all programs (make sure they are well commented and include instructions how to run them – arguments etc. Under-documented programs will be penalized.);
-# (b) Project report that includes all measurement results, graphs, correlation coefficients, and conclusions that you draw from your measurements.
-#   2. Place your project into directory “<home-directory>/project2” in your VM. (You can use sftp to upload.) Then create a copy of that directory, “<home-directory>/project2grading”. We will be testing your work by going into the project2grading directory and issuing the commands “python3 distMeasurement.py”.

@@ -22,12 +22,13 @@ def getInfo(host, result, startTime, endTime):
 
 
 def Case1(result, host):
-    #  44-48
+    # pull IP address out of packet, match it to socket.gethostbyname
     target_ip = ("{}.{}.{}.{}".format(result[12], result[13], result[14], result[15]))
     return (target_ip == host)
 
 
 def Case2(result):
+    # match port from ICMP returned packet to traceroute port
     return (struct.unpack("!H", result[50:52])[0] == TR_PORT)
 
 
