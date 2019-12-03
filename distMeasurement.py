@@ -48,7 +48,7 @@ while line:
         except socket.timeout:
             endTime = datetime.now()
             startTime = datetime.now()
-            # whoops still no response
+            # whoops still no response, provide null value
             data = ('-1', '-1', '0', 'False', 'False')
     value = (line,) + data
     datalist.append(value)
