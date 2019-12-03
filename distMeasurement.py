@@ -50,8 +50,11 @@ while line:
             startTime = datetime.now()
             # whoops still no response, provide null value
             data = ('-1', '-1', '0', 'False', 'False')
+    # Write results to file.
     value = (line,) + data
     datalist.append(value)
+    # Print result in command line
     print(value)
     ext.writeTo(path, value)
+    # repeat loop until finished.
     line = f.readline().rstrip()
